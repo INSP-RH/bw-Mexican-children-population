@@ -115,6 +115,7 @@ void Child::build(){
 }
 
 //General function for expressing growth and eb terms
+// g(t)
 NumericVector Child::general_ode(NumericVector t, NumericVector input_A, NumericVector input_B,
                                  NumericVector input_D, NumericVector input_tA,
                                  NumericVector input_tB, NumericVector input_tD,
@@ -125,6 +126,7 @@ NumericVector Child::general_ode(NumericVector t, NumericVector input_A, Numeric
             input_B*exp(-0.5*pow((t-input_tB)/input_tauB,2)) +
             input_D*exp(-0.5*pow((t-input_tD)/input_tauD,2));
 }
+
 
 NumericVector Child::Growth_dynamic(NumericVector t){
     return general_ode(t, A, B, D, tA, tB, tD, tauA, tauB, tauD);
@@ -138,9 +140,13 @@ NumericVector Child::EB_impact(NumericVector t){
     return general_ode(t, A_EB, B_EB, D_EB, tA_EB, tB_EB, tD_EB, tauA_EB, tauB_EB, tauD_EB);
 }
 
+
+// Hasta aqui
 NumericVector Child::cRhoFFM(NumericVector input_FFM){
     return 4.3*input_FFM + 837.0;
 }
+
+
 
 NumericVector Child::cP(NumericVector FFM, NumericVector FM){
     NumericVector rhoFFM = cRhoFFM(FFM);
@@ -151,6 +157,8 @@ NumericVector Child::cP(NumericVector FFM, NumericVector FM){
 NumericVector Child::Delta(NumericVector t){
     return deltamin + (deltamax - deltamin)*(1.0 / (1.0 + pow((t / P),h)));
 }
+
+
 
 NumericVector Child::FFMReference(NumericVector t){ 
   /*  return ffm_beta0 + ffm_beta1*t; */
@@ -246,13 +254,12 @@ NumericVector Child::IntakeReference(NumericVector t){
 NumericVector Child::Expenditure(NumericVector t, NumericVector FFM, NumericVector FM){
     NumericVector delta     = Delta(t);
     NumericVector Iref      = IntakeReference(t);
-    NumericVector Intakeval = Intake(t);
-    NumericVector DeltaI    = Intakeval - Iref;
+    NumericVector DeltaI    = Iref;
     NumericVector p         = cP(FFM, FM);
     NumericVector rhoFFM    = cRhoFFM(FFM);
     NumericVector growth    = Growth_dynamic(t);
     NumericVector Expend    = K + (22.4 + delta)*FFM + (4.5 + delta)*FM +
-                                0.24*DeltaI + (230.0/rhoFFM *p + 180.0/rhoFM*(1.0-p))*Intakeval +
+                                0.24*DeltaI + (230.0/rhoFFM *p + 180.0/rhoFM*(1.0-p))*Iref +
                                 growth*(230.0/rhoFFM -180.0/rhoFM);
     return Expend/(1.0+230.0/rhoFFM *p + 180.0/rhoFM*(1.0-p));
 }

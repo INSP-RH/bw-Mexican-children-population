@@ -107,7 +107,7 @@ NumericMatrix intake_reference_wrapper(NumericVector age, NumericVector sex, Num
     Child Person (age,  sex, FFM, FM, EI, dt, false);
     
     //Energy matrix
-    NumericMatrix EnergyIntake(age.size(), floor(days/dt) + 1);
+    // NumericMatrix EnergyIntake(age.size(), floor(days/dt) + 1);
     
     //Get energy matrix
     for (double i = 0; i < floor(days/dt) + 1; i++){
