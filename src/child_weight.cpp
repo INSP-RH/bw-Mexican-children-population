@@ -73,14 +73,13 @@
 #include "child_weight.h"
 
 //Default (classic) constructor for energy matrix
-Child::Child(NumericVector input_age, NumericVector input_sex, NumericVector input_FFM, NumericVector input_FM, NumericMatrix input_EIntake,
+Child::Child(NumericVector input_age, NumericVector input_sex, NumericVector input_FFM, NumericVector input_FM,
              double input_dt, bool checkValues){
     age   = input_age;
     sex   = input_sex;
     FM    = input_FM;
     FFM   = input_FFM;
     dt    = input_dt;
-    EIntake = input_EIntake;
     check = checkValues;
     generalized_logistic = false;
     build();
@@ -332,8 +331,8 @@ NumericMatrix  Child::dMass (NumericVector t, NumericVector FFM, NumericVector F
     NumericVector p         = cP(FFM, FM);
     NumericVector growth    = Growth_dynamic(t);
     NumericVector expend    = Expenditure(t, FFM, FM);
-    Mass(0,_)               = (1.0*p*(Intake(t) - expend) + growth)/rhoFFM;    // dFFM
-    Mass(1,_)               = ((1.0 - p)*(Intake(t) - expend) - growth)/rhoFM; //dFM
+    Mass(0,_)               = (1.0*p*EB_impact + growth)/rhoFFM;    // dFFM
+    Mass(1,_)               = ((1.0 - p)*EB_impact - growth)/rhoFM; //dFM
     return Mass;
     
 }

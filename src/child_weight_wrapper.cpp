@@ -6,10 +6,10 @@
 #include "child_weight.h"
 
 // [[Rcpp::export]]
-List child_weight_wrapper(NumericVector age, NumericVector sex, NumericVector FFM, NumericVector FM, NumericMatrix input_EIntake, double days, double dt, bool checkValues){
+List child_weight_wrapper(NumericVector age, NumericVector sex, NumericVector FFM, NumericVector FM, double days, double dt, bool checkValues){
     
     //Create new adult with characteristics
-    Child Person (age,  sex, FFM, FM, input_EIntake, dt, checkValues);
+    Child Person (age,  sex, FFM, FM, dt, checkValues);
     
     //Run model using RK4
     return Person.rk4(days - 1); //days - 1 to account for extra day (c++ indexing starts in 0; R in 1)

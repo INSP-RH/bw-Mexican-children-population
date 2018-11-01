@@ -138,7 +138,7 @@ private:
                               NumericVector input_tB, NumericVector input_tD,
                               NumericVector input_tauA, NumericVector input_tauB,
                               NumericVector input_tauD);
-    NumericVector (NumericVector FFM, NumericVector FM);
+    NumericVector cP(NumericVector FFM, NumericVector FM);
     NumericVector Delta(NumericVector t);
     NumericVector Expenditure(NumericVector t, NumericVector FFM, NumericVector FM);
     NumericMatrix dMass (NumericVector time, NumericVector FFM, NumericVector FM);
