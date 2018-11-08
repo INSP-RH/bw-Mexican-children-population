@@ -73,13 +73,14 @@
 #include "child_weight.h"
 
 //Default (classic) constructor for energy matrix
-Child::Child(NumericVector input_age, NumericVector input_sex, NumericVector input_FFM, NumericVector input_FM,
+Child::Child(NumericVector input_age, NumericVector input_sex, NumericVector input_FFM, NumericVector input_FM, NumericMatrix input_EIntake,
              double input_dt, bool checkValues){
     age   = input_age;
     sex   = input_sex;
     FM    = input_FM;
     FFM   = input_FFM;
     dt    = input_dt;
+    EIntake = input_EIntake;
     check = checkValues;
     generalized_logistic = false;
     build();
@@ -114,7 +115,6 @@ void Child::build(){
 }
 
 //General function for expressing growth and eb terms
-// g(t)
 NumericVector Child::general_ode(NumericVector t, NumericVector input_A, NumericVector input_B,
                                  NumericVector input_D, NumericVector input_tA,
                                  NumericVector input_tB, NumericVector input_tD,
@@ -125,7 +125,6 @@ NumericVector Child::general_ode(NumericVector t, NumericVector input_A, Numeric
             input_B*exp(-0.5*pow((t-input_tB)/input_tauB,2)) +
             input_D*exp(-0.5*pow((t-input_tD)/input_tauD,2));
 }
-
 
 NumericVector Child::Growth_dynamic(NumericVector t){
     return general_ode(t, A, B, D, tA, tB, tD, tauA, tauB, tauD);
@@ -139,13 +138,9 @@ NumericVector Child::EB_impact(NumericVector t){
     return general_ode(t, A_EB, B_EB, D_EB, tA_EB, tB_EB, tD_EB, tauA_EB, tauB_EB, tauD_EB);
 }
 
-
-// Hasta aqui
 NumericVector Child::cRhoFFM(NumericVector input_FFM){
     return 4.3*input_FFM + 837.0;
 }
-
-
 
 NumericVector Child::cP(NumericVector FFM, NumericVector FM){
     NumericVector rhoFFM = cRhoFFM(FFM);
@@ -157,28 +152,26 @@ NumericVector Child::Delta(NumericVector t){
     return deltamin + (deltamax - deltamin)*(1.0 / (1.0 + pow((t / P),h)));
 }
 
-
-
 NumericVector Child::FFMReference(NumericVector t){ 
   /*  return ffm_beta0 + ffm_beta1*t; */
    NumericMatrix ffm_ref(17,nind);
     ffm_ref(0,_)   = 10.134*(1-sex)+9.477*sex;
     ffm_ref(1,_)   = 12.099*(1 - sex) + 11.494*sex;
     ffm_ref(2,_)   = 14.0*(1 - sex) + 13.2*sex;
-    ffm_ref(3,_)   = 16.0*(1 - sex) + 14.7*sex;
-    ffm_ref(4,_)   = 17.9*(1 - sex) + 16.3*sex;
-    ffm_ref(5,_)   = 19.9*(1 - sex) + 18.2*sex;
-    ffm_ref(6,_)   = 22.0*(1 - sex) + 20.5*sex;
-    ffm_ref(7,_)   = 24.4*(1 - sex) + 23.3*sex;
-    ffm_ref(8,_)   = 27.5*(1 - sex) + 26.4*sex;
-    ffm_ref(9,_)   = 29.5*(1 - sex) + 28.5*sex;
-    ffm_ref(10,_)  = 33.2*(1 - sex) + 32.4*sex;
-    ffm_ref(11,_)  = 38.1*(1 - sex) + 36.1*sex;
-    ffm_ref(12,_)  = 43.6*(1 - sex) + 38.9*sex;
-    ffm_ref(13,_)  = 49.1*(1 - sex) + 40.7*sex;
-    ffm_ref(14,_)  = 54.0*(1 - sex) + 41.7*sex;
-    ffm_ref(15,_)  = 57.7*(1 - sex) + 42.3*sex;
-    ffm_ref(16,_)  = 60.0*(1 - sex) + 42.6*sex;
+    ffm_ref(3,_)   = 15.72*(1 - sex) + 14.86*sex;
+    ffm_ref(4,_)   = 18.18*(1 - sex) + 17.09*sex;
+    ffm_ref(5,_)   = 20.63*(1 - sex) + 19.16*sex;
+    ffm_ref(6,_)   = 23.83*(1 - sex) + 21.75*sex;
+    ffm_ref(7,_)   = 26.42*(1 - sex) + 24.83*sex;
+    ffm_ref(8,_)   = 28.30*(1 - sex) + 27.67*sex;
+    ffm_ref(9,_)   = 31.93*(1 - sex) + 31.41*sex;
+    ffm_ref(10,_)  = 35.46*(1 - sex) + 34.90*sex;
+    ffm_ref(11,_)  = 41.01*(1 - sex) + 37.22*sex;
+    ffm_ref(12,_)  = 43.23*(1 - sex) + 39.41*sex;
+    ffm_ref(13,_)  = 46.30*(1 - sex) + 41.30*sex;
+    ffm_ref(14,_)  = 49.18*(1 - sex) + 41.80*sex;
+    ffm_ref(15,_)  = 49.92*(1 - sex) + 42.05*sex;
+    ffm_ref(16,_)  = 52.17*(1 - sex) + 42.96*sex;
  
  NumericVector ffm_ref_t(nind);
  int jmin;
@@ -202,23 +195,23 @@ NumericVector Child::FFMReference(NumericVector t){
 NumericVector Child::FMReference(NumericVector t){
    /* return fm_beta0 + fm_beta1*t;*/
     NumericMatrix fm_ref(17,nind);
-    fm_ref(0,_)   = 2.456*(1-sex)+ 2.5*sex;
+    fm_ref(0,_)   = 2.456*(1-sex)+ 2.433*sex;
     fm_ref(1,_)   = 2.576*(1 - sex) + 2.606*sex;
     fm_ref(2,_)   = 2.7*(1 - sex) + 2.8*sex;
-    fm_ref(3,_)   = 2.7*(1 - sex) + 2.9*sex;
-    fm_ref(4,_)   = 2.8*(1 - sex) + 3.2*sex;
-    fm_ref(5,_)   = 2.9*(1 - sex) + 3.7*sex;
-    fm_ref(6,_)   = 3.3*(1 - sex) + 4.3*sex;
-    fm_ref(7,_)   = 3.7*(1 - sex) + 5.2*sex;
-    fm_ref(8,_)   = 4.8*(1 - sex) + 7.2*sex;
-    fm_ref(9,_)   = 5.9*(1 - sex) + 8.5*sex;
-    fm_ref(10,_)  = 6.7*(1 - sex) + 9.2*sex;
-    fm_ref(11,_)  = 7.0*(1 - sex) + 10.0*sex;
-    fm_ref(12,_)  = 7.2*(1 - sex) + 11.3*sex;
-    fm_ref(13,_)  = 7.5*(1 - sex) + 12.8*sex;
-    fm_ref(14,_)  = 8.0*(1 - sex) + 14.0*sex;
-    fm_ref(15,_)  = 8.4*(1 - sex) + 14.3*sex;
-    fm_ref(16,_)  = 8.8*(1 - sex) + 14.3*sex;
+    fm_ref(3,_)   = 3.66*(1 - sex) + 4.47*sex;
+    fm_ref(4,_)   = 4.48*(1 - sex) + 5.18*sex;
+    fm_ref(5,_)   = 4.94*(1 - sex) + 5.75*sex;
+    fm_ref(6,_)   = 6.45*(1 - sex) + 6.49*sex;
+    fm_ref(7,_)   = 7.03*(1 - sex) + 7.93*sex;
+    fm_ref(8,_)   = 7.47*(1 - sex) + 9.02*sex;
+    fm_ref(9,_)   = 8.83*(1 - sex) + 10.43*sex;
+    fm_ref(10,_)  = 9.58*(1 - sex) + 11.93*sex;
+    fm_ref(11,_)  = 11.64*(1 - sex) + 13.08*sex;
+    fm_ref(12,_)  = 12.45*(1 - sex) + 14.11*sex;
+    fm_ref(13,_)  = 12.82*(1 - sex) + 15.73*sex;
+    fm_ref(14,_)  = 13.93*(1 - sex) + 15.12*sex;
+    fm_ref(15,_)  = 14.01*(1 - sex) + 14.83*sex;
+    fm_ref(16,_)  = 13.35*(1 - sex) + 15.89*sex;
  NumericVector fm_ref_t(nind);
  int jmin;
  int jmax;
@@ -253,12 +246,13 @@ NumericVector Child::IntakeReference(NumericVector t){
 NumericVector Child::Expenditure(NumericVector t, NumericVector FFM, NumericVector FM){
     NumericVector delta     = Delta(t);
     NumericVector Iref      = IntakeReference(t);
-    NumericVector DeltaI    = Iref;
+    NumericVector Intakeval = Intake(t);
+    NumericVector DeltaI    = Intakeval - Iref;
     NumericVector p         = cP(FFM, FM);
     NumericVector rhoFFM    = cRhoFFM(FFM);
     NumericVector growth    = Growth_dynamic(t);
     NumericVector Expend    = K + (22.4 + delta)*FFM + (4.5 + delta)*FM +
-                                0.24*DeltaI + (230.0/rhoFFM *p + 180.0/rhoFM*(1.0-p))*Iref +
+                                0.24*DeltaI + (230.0/rhoFFM *p + 180.0/rhoFM*(1.0-p))*Intakeval +
                                 growth*(230.0/rhoFFM -180.0/rhoFM);
     return Expend/(1.0+230.0/rhoFFM *p + 180.0/rhoFM*(1.0-p));
 }
@@ -331,8 +325,8 @@ NumericMatrix  Child::dMass (NumericVector t, NumericVector FFM, NumericVector F
     NumericVector p         = cP(FFM, FM);
     NumericVector growth    = Growth_dynamic(t);
     NumericVector expend    = Expenditure(t, FFM, FM);
-    Mass(0,_)               = (1.0*p*EB_impact + growth)/rhoFFM;    // dFFM
-    Mass(1,_)               = ((1.0 - p)*EB_impact - growth)/rhoFM; //dFM
+    Mass(0,_)               = (1.0*p*(Intake(t) - expend) + growth)/rhoFFM;    // dFFM
+    Mass(1,_)               = ((1.0 - p)*(Intake(t) - expend) - growth)/rhoFM; //dFM
     return Mass;
     
 }
